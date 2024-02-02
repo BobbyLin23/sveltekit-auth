@@ -1,12 +1,15 @@
 <script lang="ts" context="module">
 	import { z } from 'zod'
 
-	export const LoginSchema = z.object({
+	export const RegisterSchema = z.object({
 		email: z.string().email({
 			message: 'Email is required'
 		}),
-		password: z.string().min(1, {
-			message: 'Password is required'
+		password: z.string().min(6, {
+			message: 'Minimum 6 characters required'
+		}),
+		name: z.string().min(1, {
+			message: 'Name is required'
 		})
 	})
 </script>
@@ -16,29 +19,36 @@
 
 	import * as Form from '$lib/components/ui/form'
 	import CardWrapper from './card-wrapper.svelte'
-	import FormSuccess from '../form-success.svelte'
-	import FormError from '../form-error.svelte'
+	import FormSuccess from '$lib/components/form-success.svelte'
+	import FormError from '$lib/components/form-error.svelte'
 
-	let success: string | undefined = undefined
-	let error: string | undefined = undefined
+	export let form: SuperValidated<typeof RegisterSchema>
 
-	export let form: SuperValidated<typeof LoginSchema>
+	let error: string | undefined = ''
+	let success: string | undefined = ''
 </script>
 
 <CardWrapper
-	headerLabel="Welcome back"
-	backButtonLabel="Don't have an account?"
-	backButtonHref="/auth/register"
+	headerLabel="Create an account"
+	backButtonLabel="Already have an account?"
+	backButtonHref="/auth/login"
 	showSocial
 >
 	<Form.Root
 		method="POST"
 		{form}
-		schema={LoginSchema}
+		schema={RegisterSchema}
 		class="space-y-6"
 		let:config
 	>
 		<div class="space-y-4">
+			<Form.Item>
+				<Form.Field {config} name="email">
+					<Form.Label>Name</Form.Label>
+					<Form.Input placeholder="john.doe@example.com" />
+					<Form.Validation />
+				</Form.Field>
+			</Form.Item>
 			<Form.Item>
 				<Form.Field {config} name="email">
 					<Form.Label>Email</Form.Label>
@@ -54,8 +64,8 @@
 				</Form.Field>
 			</Form.Item>
 		</div>
-		<FormSuccess message={success} />
 		<FormError message={error} />
-		<Form.Button class="w-full">Login</Form.Button>
+		<FormSuccess message={success} />
+		<Form.Button class="w-full">Create an account</Form.Button>
 	</Form.Root>
 </CardWrapper>
